@@ -60,6 +60,15 @@ def listar_y_leer_archivos_visitas() -> None:
     ruta_zip = crear_backup_zip(archivos)
     if ruta_zip:
         print(f"\nBackup creado: {ruta_zip}")
+
+        # Eliminar archivos fuente solo si el backup se creó correctamente
+        print("Eliminando archivos fuente del directorio de origen...")
+        for archivo in archivos:
+            try:
+                archivo.unlink()
+                print(f"  Archivo eliminado: {archivo.name}")
+            except OSError as e:
+                print(f"  No se pudo eliminar '{archivo}': {e}")
     else:
         print("\nNo se generó backup (sin archivos).")
 
