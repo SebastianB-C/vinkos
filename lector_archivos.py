@@ -10,8 +10,7 @@ load_dotenv(".env.local")
 
 # Ruta por defecto; puede sobrescribirse con DIR_ARCHIVOS_VISITAS en .env.local
 RUTA_ARCHIVOS_VISITAS = os.getenv(
-    "DIR_ARCHIVOS_VISITAS",
-    r"C:\home\vinkOS\archivosVisitas",
+    "DIR_ARCHIVOS_VISITAS"
 )
 
 
