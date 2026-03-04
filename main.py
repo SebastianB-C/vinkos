@@ -4,6 +4,7 @@ from lector_archivos import (
     obtener_ruta_directorio,
     leer_contenido_archivo,
 )
+from backup import crear_backup_zip, obtener_ruta_directorio_backup
 
 
 def probar_conexion() -> None:
@@ -54,6 +55,13 @@ def listar_y_leer_archivos_visitas() -> None:
     for archivo in archivos:
         tamaño = archivo.stat().st_size
         print(f"  - {archivo.name} ({tamaño} bytes)")
+
+    # Backup: generar ZIP con los archivos en el directorio de backup
+    ruta_zip = crear_backup_zip(archivos)
+    if ruta_zip:
+        print(f"\nBackup creado: {ruta_zip}")
+    else:
+        print("\nNo se generó backup (sin archivos).")
 
     # Ejemplo: leer las primeras líneas del primer archivo (si es texto)
     primer_archivo = archivos[0]
