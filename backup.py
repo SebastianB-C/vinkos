@@ -11,9 +11,7 @@ from dotenv import load_dotenv
 load_dotenv(".env.local")
 
 # Directorio donde se guardan los ZIP de backup
-RUTA_BACKUP_VISITAS = os.getenv(
-    "DIR_BACKUP_VISITAS"
-)
+RUTA_BACKUP_VISITAS = Path(__file__).resolve().parent.parent / os.getenv("DIR_BACKUP_VISITAS")
 
 
 def obtener_ruta_directorio_backup() -> Path:
