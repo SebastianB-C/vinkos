@@ -5,32 +5,7 @@ from lector_archivos import (
     leer_contenido_archivo,
 )
 from backup import crear_backup_zip, obtener_ruta_directorio_backup
-
-
-def probar_conexion() -> None:
-    """
-    Consulta sencilla para verificar que la conexión a MySQL funciona.
-    """
-    with obtener_cursor() as cursor_bd:
-        cursor_bd.execute("SELECT VERSION() AS version")
-        fila = cursor_bd.fetchone()
-        print(f"¡Conectado! Versión de MySQL: {fila['version']}")
-
-
-def listar_tablas() -> None:
-    """
-    Ejemplo de consulta que lista las tablas de la base de datos actual.
-    """
-    with obtener_cursor() as cursor_bd:
-        cursor_bd.execute("SHOW TABLES")
-        filas = cursor_bd.fetchall()
-        if not filas:
-            print("No se encontraron tablas en la base de datos.")
-        else:
-            print("Tablas en la base de datos:")
-            for fila in filas:
-                # Cada fila es un diccionario con una sola clave (nombre de la tabla)
-                print(" -", list(fila.values())[0])
+from carga_visitas_raw import cargar_archivos_en_visitas_raw
 
 
 def listar_y_leer_archivos_visitas() -> None:
@@ -51,15 +26,19 @@ def listar_y_leer_archivos_visitas() -> None:
         print("No hay archivos en el directorio.")
         return
 
-    print(f"Archivos encontrados: {len(archivos)}")
+    print(f"Archivos encontrados (patrón válido): {len(archivos)}")
     for archivo in archivos:
         tamaño = archivo.stat().st_size
         print(f"  - {archivo.name} ({tamaño} bytes)")
 
+    # Cargar datos en la tabla visitas_raw usando pandas
+    total_insertados = cargar_archivos_en_visitas_raw(archivos)
+    print(f"\nFilas insertadas en visitas_raw: {total_insertados}")
+
     # Backup: generar ZIP con los archivos en el directorio de backup
     ruta_zip = crear_backup_zip(archivos)
     if ruta_zip:
-        print(f"\nBackup creado: {ruta_zip}")
+        print(f"Backup creado: {ruta_zip}")
 
         # Eliminar archivos fuente solo si el backup se creó correctamente
         print("Eliminando archivos fuente del directorio de origen...")
@@ -70,26 +49,9 @@ def listar_y_leer_archivos_visitas() -> None:
             except OSError as e:
                 print(f"  No se pudo eliminar '{archivo}': {e}")
     else:
-        print("\nNo se generó backup (sin archivos).")
-
-    # Ejemplo: leer las primeras líneas del primer archivo (si es texto)
-    primer_archivo = archivos[0]
-    try:
-        contenido = leer_contenido_archivo(primer_archivo)
-        lineas = contenido.strip().splitlines()[:5]
-        print(f"\nPrimeras líneas de '{primer_archivo.name}':")
-        for linea in lineas:
-            print(f"  {linea[:80]}{'...' if len(linea) > 80 else ''}")
-    except (UnicodeDecodeError, OSError) as e:
-        print(f"\n(No se muestra contenido de '{primer_archivo.name}': {e})")
-
+        print("No se generó backup (sin archivos).")
 
 if __name__ == "__main__":
     print("=== Archivos de visitas (directorio local) ===")
     listar_y_leer_archivos_visitas()
-    print()
-    print("=== Conexión MySQL ===")
-    probar_conexion()
-    print()
-    listar_tablas()
 
