@@ -102,7 +102,40 @@ def probar_consulta_basica() -> None:
         print(f"Resultado de SELECT 1: {fila['resultado']}")
 
 
+def listar_tablas() -> None:
+    """
+    Ejemplo de consulta que lista las tablas de la base de datos actual.
+    """
+    with obtener_cursor() as cursor_bd:
+        cursor_bd.execute("SHOW TABLES")
+        filas = cursor_bd.fetchall()
+        if not filas:
+            print("No se encontraron tablas en la base de datos.")
+        else:
+            print("Tablas en la base de datos:")
+            for fila in filas:
+                # Cada fila es un diccionario con una sola clave (nombre de la tabla)
+                print(" -", list(fila.values())[0])
+
+
+def obtener_nombres_columnas(table_name: str) -> list:
+    """
+    Retorna los nombres de las columnas de una tabla específica.
+    
+    Args:
+        table_name (str): El nombre de la tabla.
+    
+    Returns:
+        list: Lista de strings con los nombres de las columnas.
+    """
+    with obtener_cursor() as cursor_bd:
+        cursor_bd.execute(f"DESCRIBE {table_name}")
+        columnas = cursor_bd.fetchall()
+        return [columna['Field'] for columna in columnas]
+
+
 if __name__ == "__main__":
     print("Ejecutando pruebas de conexión desde db.py...")
     probar_conexion_simple()
     probar_consulta_basica()
+    print(obtener_nombres_columnas('visitas_raw'))
